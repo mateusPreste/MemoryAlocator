@@ -3,4 +3,4 @@ project(MemoryAlocator)
 
 set(CMAKE_CXX_STANDARD 11)
 
-add_executable(MemoryAlocator main.cpp)
+add_executable(MemoryAlocator aloca.cpp aloca.h)
