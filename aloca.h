@@ -10,10 +10,17 @@
 #define FIRSTFIT 1
 #define NEXTFIT 2
 
+#include <vector>
+typedef struct{
+    int size;
+    char* initAddress;
+} espacos;
 //TAMANHO MÁXIMO DE ALOCACAO: 65535 (maior unsigned short)
 
 class meualoc{
     char* memoria; //char* pois eh byte a byte
+    int magicNumber;
+    std::vector<espacos> lista;
 public:
     //tamanhoMemoria vai definir o tamanho da memória que o alocador vai utilizar
     //politicaMem define como escolher o bloco de onde saira a memória

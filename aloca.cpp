@@ -4,8 +4,19 @@
 
 #include "aloca.h"
 
-meualoc::meualoc(int tamanhoMemoria, int politicaMem) {
 
+
+meualoc::meualoc(int tamanhoMemoria, int politicaMem) {
+    switch(politicaMem){
+        case BESTFIT:
+            break;
+        case FIRSTFIT:
+            break;
+        case NEXTFIT:
+            break;
+        default:
+            break;
+    }
 }
 
 char *meualoc::aloca(unsigned short int tamanho) {
