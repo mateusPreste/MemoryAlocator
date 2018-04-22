@@ -11,10 +11,12 @@
 #define NEXTFIT 2
 
 #include <vector>
+
 typedef struct{
     int size;
     char* initAddress;
 } espacos;
+
 //TAMANHO MÁXIMO DE ALOCACAO: 65535 (maior unsigned short)
 
 class meualoc{
