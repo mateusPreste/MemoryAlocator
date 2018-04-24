@@ -11,7 +11,9 @@
 
 using namespace std;
 
-//variavel clear indica um desalocacao
+/* Escreve o cabeçalho
+ * variavel clear é ativada em desalocações para limpar o numero magico da memoria
+*/
 void meualoc::writeHeader(char* start, short int size, int clear){
     start[0] = static_cast<char>(size >> 8);
     start[1] = static_cast<char>(size);
@@ -24,8 +26,9 @@ void meualoc::writeHeader(char* start, short int size, int clear){
     }
 }
 
-//Verifica
+//Retorna a variavel tamanho do cabeçalho do bloco alocado
 short int meualoc::blockSize(char* address, short int magicNumber){
+    //mascara de bits utilizada para evitar a repetição de 1 a direita
     short int numberMemory = (address[3]& 0xff);
     short int size = (address[1]& 0xff);
     size += (((short int) address[0])<< 8);
@@ -38,14 +41,16 @@ short int meualoc::blockSize(char* address, short int magicNumber){
     }
 }
 
+//Construtor
 meualoc::meualoc(int tamanhoMemoria, int politicaMem) {
     politic = politicaMem;
     memoria = (char*) malloc(tamanhoMemoria);
     srand (time(NULL));
     magicNumber = rand();
+    //lista de espaço começa com espaço de tamanho N
     freespace first;
-    first.size = tamanhoMemoria;
-    first.initAddress = 0;
+        first.size = tamanhoMemoria;
+        first.initAddress = 0;
     spacelist.push_back(first);
 }
 
@@ -70,7 +75,7 @@ char *meualoc::aloca(unsigned short int size) {
                 if(bestSize == -1){
                     bestSize = 32767;
                 }
-                //
+                // O bloco tem que ser o menor possivel
                 if(thisSize >= size+4 && thisSize < bestSize){
                     bestSize = thisSize;
                     choosed = it;
@@ -89,6 +94,15 @@ char *meualoc::aloca(unsigned short int size) {
                 }
                 break;
             case 2: //NEXTFIT
+                /*
+                 * Para implementar a lista circular no vector
+                 * verificamos o primeiro elemento
+                 * marcamos ele (variavel choosed)
+                 * colocamos ele no fim da fila
+                 * repetimos o processo de colocar o head no fim da fila
+                 * até que encontramos o elemento marcado
+                 * indicando que percorremos toda a fila
+                 */
                 //lista circular, terminando no primeiro elemento verificado
                 if(nextfirst || it != choosed){
                     if(thisSize >= size+4){
@@ -97,16 +111,20 @@ char *meualoc::aloca(unsigned short int size) {
                         // encontrou o primeiro bloco valido, termine a busca
                         it = spacelist.end();
                     } else{
+                        //rotação da lista
                         rotate(spacelist.begin(), spacelist.begin() + 1, spacelist.end());
+                        //indica que o primeiro elemento ja foi verificado
                         nextfirst = false;
                     }
                 } else{
+                    //nenhum bloco encontrado, forçar o fim do for
                     it = spacelist.end();
                 }
                 break;
         }
     }
 
+    //nenhum bloco foi encontrado a variavel bestSize permanece a mesma
     if(bestSize == 32767 || bestSize == -1){
         cout << "NAO HA ESPACO PARA A ALOCACAO" << endl;
         return nullptr;
@@ -163,6 +181,7 @@ int meualoc::libera(char *local) {
     //IMPLEMENTAR
 }
 
+//Desconstrutor
 meualoc::~meualoc() {
     free(memoria);
     spacelist.clear();
