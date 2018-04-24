@@ -13,16 +13,17 @@
 #include <vector>
 
 typedef struct{
-    int size;
-    char* initAddress;
-} espacos;
+    int initAddress;
+    short int size;
+} freespace;
 
 //TAMANHO MÁXIMO DE ALOCACAO: 65535 (maior unsigned short)
 
 class meualoc{
     char* memoria; //char* pois eh byte a byte
-    int magicNumber;
-    std::vector<espacos> lista;
+    short int magicNumber;
+    int politic;
+    std::vector<freespace> spacelist;
 public:
     //tamanhoMemoria vai definir o tamanho da memória que o alocador vai utilizar
     //politicaMem define como escolher o bloco de onde saira a memória
@@ -39,6 +40,11 @@ public:
 
     //Imprime o numero de elementos na lista de vazios, o maior e a media de tamanhos dos blocos vazios
     void imprimeDados();
+
+    void writeHeader(char* start, short int size, int clear);
+
+    //retorna o tamanho de um bloco alocado
+    short int blockSize(char* address, short int magicNumber);
 
     ~meualoc();
 
