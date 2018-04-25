@@ -68,7 +68,7 @@ char *meualoc::aloca(unsigned short int size) {
 
     for(it; it != spacelist.end(); ){
         short int thisSize = (*it).size;
-        cout << "tamanho" << thisSize << " " << size+4 << endl;
+        cout << "alocando bloco de tamanho " << thisSize << " " << size+4 << endl;
         switch(politic){
             case 0://BESTFIT
             {
@@ -177,32 +177,73 @@ void meualoc::imprimeDados() {
          << "Média dos elementos da lista: " << average << endl;
 }
 
-int meualoc::libera(char *local) {
-    //IMPLEMENTAR
+int meualoc::libera(char *local){
+    //free nao next fit
+    if(verifica(local, -4)){
+        //blockSize(end, numMag)
+        short int tamanho = blockSize(local-4, magicNumber);
+        writeHeader(local-4, 0, 1);
+
+        int indexNewBlock = (local-4)-memoria; 
+        freespace novo;
+        novo.size = tamanho;
+        novo.initAddress = indexNewBlock;
+
+        if(politic != NEXTFIT){
+            auto i = spacelist.begin();
+            for(i; i != spacelist.end(); i++){
+                if( (i->initAddress) > ((local-4)-memoria) ){
+                    spacelist.insert(i, novo);
+                    break;
+                }  
+            }
+
+            if(i == spacelist.end()){
+                spacelist.push_back(novo);
+            }
+
+            //COALESCE
+            
+            for(auto i = spacelist.begin(); i != spacelist.end(); ){
+                int tamtam = 0;
+                if((i->size + i->initAddress) == (i+1)->initAddress){
+                    i->size += (i+1)->size;
+                    spacelist.erase(i+1);
+                } else{
+                    i++;
+                }
+            }
+        } else{
+            spacelist.push_back(novo);
+
+            bool a = false;
+            for (auto externo = spacelist.begin(); externo != spacelist.end(); ++externo)
+            {
+                for (auto interno = externo+1; interno != spacelist.end();){
+                    //cout << "1" << endl;
+                    if((externo->size + externo->initAddress) == interno->initAddress){
+                        externo->size += interno->size;
+                        spacelist.erase(interno);
+                        if(interno == spacelist.end()){
+                        }
+                    } else if((interno->size + interno->initAddress) == externo->initAddress){
+                        interno->size += externo->size;
+                        spacelist.erase(externo);
+                        --externo;
+                        break;
+                    } else{
+                        ++interno;
+                    }
+                }
+            }
+
+        }
+
+    }
 }
 
 //Desconstrutor
 meualoc::~meualoc() {
     free(memoria);
     spacelist.clear();
-}
-
-int main(){
-    vector<char*> alocados;
-    meualoc aloc(130, 2);
-    aloc.imprimeDados();
-    alocados.push_back(aloc.aloca(3));
-    aloc.imprimeDados();
-    alocados.push_back(aloc.aloca(8));
-    aloc.imprimeDados();
-    alocados.push_back(aloc.aloca(5));
-    aloc.imprimeDados();
-    alocados.push_back(aloc.aloca(2));
-    aloc.imprimeDados();
-    alocados.push_back(aloc.aloca(1));
-    aloc.imprimeDados();
-    for(char* add : alocados){
-        aloc.libera(add);
-        aloc.imprimeDados();
-    }
 }
